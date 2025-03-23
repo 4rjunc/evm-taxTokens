@@ -36,7 +36,7 @@ contract TaxToken is ERC20 {
       // hypothetically the demands stays the same price goes up
 
       _transfer(msg.sender, to, transferAmount);
-      _transfer(msg.sender, address(0), taxAmount);
+      _transfer(msg.sender, address(0), taxAmount); // can change the address with our wallet address
 
       emit Transfer(msg.sender, to, amount);
 
