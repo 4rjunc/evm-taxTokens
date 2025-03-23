@@ -35,10 +35,10 @@ contract TaxToken is ERC20 {
       // more transaction happens more reduction of  the supply 
       // hypothetically the demands stays the same price goes up
 
-      _balance[msg.sender] -= amount;
-      _balance[to] = transferAmount;
+      _transfer(msg.sender, to, transferAmount);
+      _transfer(msg.sender, address(0), taxAmount);
 
-      emit Transfer(from, to, amount);
+      emit Transfer(msg.sender, to, amount);
 
       return true; 
     }
