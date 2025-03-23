@@ -1,66 +1,108 @@
-## Foundry
+# TaxToken Project
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This project implements a custom ERC20 token with a built-in tax mechanism. Each transfer incurs a 10% tax that is sent to a burn address, effectively reducing the total supply over time.
 
-Foundry consists of:
+## Contract Overview
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+`TaxToken` is an ERC20-compliant token with the following features:
 
-## Documentation
+- **Name**: TaxToken
+- **Symbol**: TT
+- **Decimals**: 18 (standard ERC20)
+- **Tax Mechanism**: 10% of each transfer is automatically sent to a burn address
+- **Supply Mechanism**: Tokens can be minted by any user calling the `mintToMe` function
 
-https://book.getfoundry.sh/
+### How the Tax Works
 
-## Usage
+When a user transfers tokens:
+1. The contract verifies the sender has sufficient balance
+2. 10% of the transfer amount is calculated as tax
+3. 90% of the tokens are sent to the recipient
+4. 10% of the tokens are sent to the burn address (`0x000000000000000000000000000000000000dEaD`)
+5. The total transfer amount is deducted from the sender's balance
 
-### Build
+This mechanism creates natural deflationary pressure on the token supply, potentially increasing its value over time if demand remains constant.
 
-```shell
-$ forge build
+## Project Setup
+
+### Prerequisites
+
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+- [Git](https://git-scm.com/downloads)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/4rjunc/evm-taxToken.git
+   cd evm-taxToken
+   ```
+
+2. Install dependencies:
+   ```bash
+   forge install
+   ```
+
+### Compile
+
+Compile the smart contracts:
+```bash
+forge build
 ```
 
-### Test
+### Testing
 
-```shell
-$ forge test
+Run the test suite:
+```bash
+forge test
 ```
 
-### Format
-
-```shell
-$ forge fmt
+Run tests with verbose output:
+```bash
+forge test -vv
 ```
 
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
+Run a specific test:
+```bash
+forge test --match-test testTransferWithTax -vv
 ```
 
 ### Deploy
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+To deploy to a local Anvil instance:
+1. Start Anvil:
+   ```bash
+   anvil
+   ```
+
+2. Deploy the contract:
+   ```bash
+   forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --private-key <private-key> --broadcast
+   ```
+
+For deployment to a testnet or mainnet, update the RPC URL and private key accordingly.
+
+## Project Structure
+
+```
+.
+├── src/
+│   └── TaxToken.sol       # Main contract
+├── test/
+│   └── TaxToken.t.sol     # Tests for TaxToken
+├── script/
+│   └── Deploy.s.sol       # Deployment script
+└── README.md              # This file
 ```
 
-### Cast
+## Contract Functionality
 
-```shell
-$ cast <subcommand>
-```
+### Functions
 
-### Help
+- `constructor()`: Initializes the token with name "TaxToken" and symbol "TT"
+- `mintToMe(uint amount)`: Mints the specified amount of tokens to the caller
+- `transfer(address to, uint256 amount)`: Overrides the ERC20 transfer function to implement the tax mechanism
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+## License
+
+This project is licensed under the UNLICENSED license.
