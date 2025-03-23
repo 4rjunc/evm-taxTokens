@@ -4,20 +4,43 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TaxToken is ERC20 {
-   address public immutable fund;
 
-    constructor(address fund_) ERC20("SimpleTax", "STX") {
-        _mint(msg.sender, 1000 * 10 ** decimals());
-        fund = fund_;
+  // 10% Tax 
+  uint taxDivisor = 10;
+
+  constructor() ERC20("TaxToken", "TT") {
+    
+  }
+
+  function mintToMe(uint amount) public {
+    //msg.sender global var
+    _mint(msg.sender, amount);
+  }
+
+  function transfer(address to, uint256 amount) public override returns (bool) {
+  
+      //1. Make use sender has enough money
+      //2. Take 10% cut 
+      //3. Send 90% to the reciepient
+      uint balanceSender = balanceOf(msg.sender);
+      require(balanceSender >= amount, "ERC20 not enough");
+
+      // Solidity does't support floatings
+
+      uint taxAmount = amount / taxDivisor;
+      uint transferAmount = amount - taxAmount;
+
+
+      // here the 10% tokens are burned 
+      // more transaction happens more reduction of  the supply 
+      // hypothetically the demands stays the same price goes up
+
+      _balance[msg.sender] -= amount;
+      _balance[to] = transferAmount;
+
+      emit Transfer(from, to, amount);
+
+      return true; 
     }
 
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal virtual override {
-        uint tax = (amount / 100) * 5; // 5% tax
-
-        super._transfer(sender, recipient, amount - tax);
-        super._transfer(sender, fund, tax);
-    }}
+}
